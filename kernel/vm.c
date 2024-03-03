@@ -49,6 +49,35 @@ kvmmake(void)
   return kpgtbl;
 }
 
+void printRoot(pagetable_t pagetable, uint8 level) {
+    for(int i = 0; i < 512; i++){
+        pte_t pte = pagetable[i];
+        if(pte & PTE_V){
+            switch(level) {
+                case 2:
+                    printf("..");
+                    break;
+                case 1:
+                    printf(".. ..");
+                    break;
+                case 0:
+                    printf(".. .. ..");
+                    break;
+            }
+            printf("%d: pte %p pa %p\n", i, pte, PTE2PA(pte));
+            if (level) {
+                printRoot((pagetable_t)PTE2PA(pte), level - 1);
+            }
+        }
+    }
+}
+
+void vmprint(pagetable_t pagetable) {
+    printf("page table %p\n", pagetable);
+
+    printRoot(pagetable, 2);
+}
+
 // Initialize the one kernel_pagetable
 void
 kvminit(void)
